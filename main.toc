@@ -1,0 +1,3 @@
+\babel@toc {portuguese}{}\relax 
+\contentsline {section}{\numberline {1}Modelos conceitual, logico e fisico. (29/03/2023)}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Conjuntos}{2}{subsection.1.1}%
