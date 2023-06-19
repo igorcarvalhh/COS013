@@ -1,8 +1,8 @@
-all: saida entrada.txt
-	./saida < entrada.txt
+all: saida entrada.js
+	./saida < entrada.js
 
 saida: lex.yy.c y.tab.c
-	g++ y.tab.c -o saida -ll	
+	g++ -w -std=c++11 y.tab.c -o saida -ll	
 	
 lex.yy.c: npr.lex
 	lex npr.lex
