@@ -23,7 +23,6 @@ void erro( string msg );
 void print( string st );
 
 // protótipo para o analisador léxico (gerado pelo lex)
-//
 int yylex();
 void yyerror( const char* );
 
