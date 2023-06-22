@@ -1,8 +1,15 @@
+%{
+void acerta_coluna();    
+    
+%}
+
 D	[0-9]
 L	[a-zA-Z_]
 
 /* whitespace: espaco, tab ou \n */
+/*
 WS	[ \t\n]
+*/
 
 STRING	\"(\"\"|\\\"|[^\"])*\"
 
@@ -30,28 +37,38 @@ DEFAULT default
 
 %%
 
-{WS}		{ /* ignora espaços, tabs e '\n' */ }
+" "		{ coluna++; }
 
-{COMENTARIO} 	{ yylval.v = yytext; return COMENTARIO; }
-{ML_COMMENT} 	{ yylval.v = yytext; return ML_COMMENT; }
-{STRING} 	    { yylval.v = yytext; return _STRING; }
-{NUM}   	    { yylval.v = yytext; return _NUM; }
-{LET}           { yylval.v = yytext; return _LET;}
-{VAR}           { yylval.v = yytext; return _VAR;}
-{CONST}         { yylval.v = yytext; return _CONST;}
-{FOR}           { yylval.v = yytext; return _FOR;}
-{FUNCTION}      { yylval.v = yytext; return _FUNCTION;}
-{IF}            { yylval.v = yytext; return IF;}
-{ELSE}          { yylval.v = yytext; return ELSE;}
-{DO}            { yylval.v = yytext; return DO;}
-{WHILE}         { yylval.v = yytext; return WHILE;}
-{BREAK}         { yylval.v = yytext; return BREAK;}
-{RETURN}        { yylval.v = yytext; return RETURN;}
-{SWITCH}        { yylval.v = yytext; return SWITCH;}
-{CASE}          { yylval.v = yytext; return CASE;}
-{DEFAULT}       { yylval.v = yytext; return DEFAULT;}
-{ID}		    { yylval.v = yytext; return _ID; }
+"\t"	{ coluna += 4; }
 
-.       	    { yylval.v = yytext; return *yytext; }
+"\n"    { linha++; coluna = 1; }
+
+{COMENTARIO} 	{ acerta_coluna(); return COMENTARIO; }
+{ML_COMMENT} 	{ acerta_coluna(); return ML_COMMENT; }
+{STRING} 	    { acerta_coluna(); return STRING; }
+{NUM}   	    { acerta_coluna(); return NUM; }
+{LET}           { acerta_coluna(); return LET;}
+{VAR}           { acerta_coluna(); return VAR;}
+{CONST}         { acerta_coluna(); return CONST;}
+{FOR}           { acerta_coluna(); return FOR;}
+{FUNCTION}      { acerta_coluna(); return FUNCTION;}
+{IF}            { acerta_coluna(); return IF;}
+{ELSE}          { acerta_coluna(); return ELSE;}
+{DO}            { acerta_coluna(); return DO;}
+{WHILE}         { acerta_coluna(); return WHILE;}
+{BREAK}         { acerta_coluna(); return BREAK;}
+{RETURN}        { acerta_coluna(); return RETURN;}
+{SWITCH}        { acerta_coluna(); return SWITCH;}
+{CASE}          { acerta_coluna(); return CASE;}
+{DEFAULT}       { acerta_coluna(); return DEFAULT;}
+{ID}		    { acerta_coluna(); return ID; }
+
+.       	    { acerta_coluna(); return *yytext; }
 
 %%
+
+void acerta_coluna() {
+    coluna += strlen( yytext ); 
+    yylval.c.clear();
+    yylval.c.push_back( yytext );
+}

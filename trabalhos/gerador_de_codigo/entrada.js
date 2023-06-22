@@ -1,10 +1,14 @@
 
 // Teste 2
-const a2 = 0, b = a + b;
-let y = "uma string";
+// const a2 = 0, b = a + b;
+let y = 2;
 
 // Teste 3
+
+/*
 const a, b = a + b;
+
+
 
 // Teste 4
 let a4 = 0, b4;
@@ -38,8 +42,8 @@ let v = [ 1, 2, { g: b }, x+1 ];
 // Teste 7
 f(test,dsd=2), v =0;
 f(9, {} ), v = 0;
-/*
-*/
+
+
 v[i][9].g = v[9]( h, [] ).n();
 for(;;) ;
 for( ; {}.b > 0; k++ ) ;
@@ -60,3 +64,4 @@ f( function() {} );
 (function( a ){
     return a;
 })( 8 );
+*/

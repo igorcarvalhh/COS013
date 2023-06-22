@@ -6,30 +6,37 @@
 #include <map>
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
 
-using namespace std;
+  using namespace std;
 
-struct Atributos {
-  string v;
-};
+    struct Atributos {
+    vector<string> c;
+    };
 
-int linha = 1;
-int coluna = 1;
+    vector<string> concatena( vector<string> a, vector<string> b );
+    vector<string> operator+( vector<string> a, vector<string> b );
+    vector<string> operator+( vector<string> a, string b );
+    string gera_label( string prefixo );
+    vector<string> resolve_enderecos( vector<string> entrada );
 
-// Tipo dos atributos: YYSTYPE é o tipo usado para os atributos.
-#define YYSTYPE Atributos
+    int linha = 1;
+    int coluna = 1;
 
-void erro( string msg );
-void print( string st );
+    // Tipo dos atributos: YYSTYPE é o tipo usado para os atributos.
+    #define YYSTYPE Atributos
 
-// protótipo para o analisador léxico (gerado pelo lex)
-int yylex();
-void yyerror( const char* );
+    void erro( string msg );
+    void imprime_codigo( vector<string> codigo );
+
+    // protótipo para o analisador léxico (gerado pelo lex)
+    extern "C" int yylex();
+    void yyerror( const char* );
 
 %}
 
 // Tokens
-%token	 ML_COMMENT COMENTARIO _ID _NUM _STRING _LET _VAR _CONST _FOR _FUNCTION IF ELSE DO WHILE SWITCH DEFAULT CASE BREAK RETURN
+%token	 ML_COMMENT COMENTARIO ID NUM STRING LET VAR CONST FOR FUNCTION IF ELSE DO WHILE SWITCH DEFAULT CASE BREAK RETURN
 
 %start  S
 
@@ -41,24 +48,23 @@ void yyerror( const char* );
 
 %%
 
-S : CMDs 
-  |
+S : CMDs { imprime_codigo( resolve_enderecos( $1.c + "." ) ); cout << endl;}
   ;
 
-CMDs : CMD
-     | CMD CMDs
+CMDs : CMD CMDs { $$.c = $1.c + $2.c; }
+     | {$$.c.clear();}
      ;
      
-CMD : STATEMENT 
-    | COMENTARIO
-    | ML_COMMENT
-    | DECLARATIONS
+CMD : STATEMENT { $$.c = $1.c; }
+    | COMENTARIO { $$.c.clear(); }
+    | ML_COMMENT  { $$.c.clear(); }
+    | DECLARATIONS { $$.c = $1.c; }
     ;
 
 
 STATEMENT : BLOCK
-          | VAR_CMD
-          | ';'
+          | VAR_CMD { $$.c = $1.c; }
+          | ';' { $$.c = $1.c; }
           | EXPRESSION_CMD
           | IF_CMD
           | ITERATION_CMD
@@ -70,31 +76,31 @@ STATEMENT : BLOCK
 DECLARATIONS : FUNCTION_DECLARATION
              ;
 
-FUNCTION_DECLARATION : _FUNCTION _ID '(' FORMAL_PARAMS ')' '{' FUNCTION_BODY '}'
-                     | _FUNCTION  '(' FORMAL_PARAMS ')' '{' FUNCTION_BODY '}'
+FUNCTION_DECLARATION : FUNCTION ID '(' FORMAL_PARAMS ')' '{' FUNCTION_BODY '}'
+                     | FUNCTION  '(' FORMAL_PARAMS ')' '{' FUNCTION_BODY '}'
                      ;
 
 BLOCK : '{' CMDs '}'
       ;
 
-VAR_CMD : _VAR DECL_VARs ';'
-        | _LET DECL_VARs ';'
-        | _CONST DECL_VARs ';'
+VAR_CMD : VAR DECL_VARs ';'
+        | LET DECL_VARs ';' { $$.c = $2.c; }
+        | CONST DECL_VARs ';'
         ;
 
-DECL_VARs : DECL_VAR
+DECL_VARs : DECL_VAR {$$.c = $1.c ;}
           | DECL_VAR ',' DECL_VARs
           ;
 
-DECL_VAR : _ID INITIALIZER
-         | _ID
+DECL_VAR : ID INITIALIZER { $$.c = $1.c + "&" + $1.c + $2.c +"^"; }
+         | ID { $$.c = $1.c + "&"; }
          ;
 
-INITIALIZER : '=' ASSIGNMENT_EXPRESSION
+INITIALIZER : '=' ASSIGNMENT_EXPRESSION { $$.c.clear(); $$.c = $2.c + "="; }
             ;
 
-ASSIGNMENT_EXPRESSION : E
-                      | LEFT_HAND '=' ASSIGNMENT_EXPRESSION
+ASSIGNMENT_EXPRESSION : E 
+                      | LEFT_HAND '=' ASSIGNMENT_EXPRESSION 
                       ;
 
 EXPRESSION_CMD : EXPRESSION ';'
@@ -105,9 +111,9 @@ IF_CMD : IF '(' EXPRESSION ')' STATEMENT ELSE STATEMENT
 
 ITERATION_CMD : DO CMD WHILE '(' E ')'
               | WHILE '(' E ')' CMD
-              | _FOR '(' VAR_CMD FOR_E ';' FOR_E ')' STATEMENT
-              | _FOR '(' FOR_E ';' FOR_E ';' FOR_E ')' STATEMENT
-              | _FOR '(' FOR_E ';' FOR_E ';' FOR_E ')' '{'  '}'
+              | FOR '(' VAR_CMD FOR_E ';' FOR_E ')' STATEMENT
+              | FOR '(' FOR_E ';' FOR_E ';' FOR_E ')' STATEMENT
+              | FOR '(' FOR_E ';' FOR_E ';' FOR_E ')' '{'  '}'
               ;
 
 FOR_E : EXPRESSION
@@ -143,7 +149,7 @@ EXPRESSION : ASSIGNMENT_EXPRESSION
            ;
 
 LEFT_HAND : NEW_EXPRESSION
-          | CALL_EXPRESSION
+          | CALL_EXPRESSION 
           ;
 
 CALL_EXPRESSION : NEW_EXPRESSION ARGUMENTS
@@ -159,9 +165,9 @@ ARGUMENT_LIST : ASSIGNMENT_EXPRESSION
               | ARGUMENT_LIST ',' ASSIGNMENT_EXPRESSION
               ;
         
-NEW_EXPRESSION : PRIMARY_EXPRESSION
+NEW_EXPRESSION : PRIMARY_EXPRESSION 
                | LEFT_HAND '[' EXPRESSION ']'
-               | LEFT_HAND '.' _ID
+               | LEFT_HAND '.' ID
                ;
 
 E : E '<' E
@@ -172,12 +178,12 @@ E : E '<' E
   | E '>' E
   | E '%' E
   | E '+' '+'
-  | LEFT_HAND
+  | LEFT_HAND 
   ;
 
-PRIMARY_EXPRESSION : _ID
-                   | _NUM
-                   | _STRING
+PRIMARY_EXPRESSION : ID 
+                   | NUM 
+                   | STRING 
                    | FUNCTION_EXPRESSION
                    | OBJECT_LITERAL
                    | ARRAY_LITERAL
@@ -193,14 +199,14 @@ PROPRIETY_LIST : PROPRIETY
                | PROPRIETY_LIST ',' PROPRIETY
                ;
 
-PROPRIETY : _ID
-          | _ID INITIALIZER
+PROPRIETY : ID
+          | ID INITIALIZER
           | PROPRIETY_NAME ':' ASSIGNMENT_EXPRESSION
           ;
 
-PROPRIETY_NAME : _ID
-               | _STRING
-               | _NUM
+PROPRIETY_NAME : ID
+               | STRING 
+               | NUM 
                ;
 
 ARRAY_LITERAL : '['  ']'
@@ -211,8 +217,8 @@ ELISION_LIST : ASSIGNMENT_EXPRESSION
              | ELISION_LIST ',' ASSIGNMENT_EXPRESSION
              ;
 
-FUNCTION_EXPRESSION : _FUNCTION _ID '(' FORMAL_PARAMS ')' '{' FUNCTION_BODY '}'
-                    | _FUNCTION  '(' FORMAL_PARAMS ')' '{' FUNCTION_BODY '}'
+FUNCTION_EXPRESSION : FUNCTION ID '(' FORMAL_PARAMS ')' '{' FUNCTION_BODY '}'
+                    | FUNCTION  '(' FORMAL_PARAMS ')' '{' FUNCTION_BODY '}'
                     ;
 
 FORMAL_PARAMS : FORMAL_PARAMS_LIST
@@ -223,8 +229,8 @@ FORMAL_PARAMS_LIST : FORMAL_PARAM
                    | FORMAL_PARAM ',' FORMAL_PARAMS_LIST
                    ;
 
-FORMAL_PARAM : _ID INITIALIZER
-             | _ID
+FORMAL_PARAM : ID INITIALIZER
+             | ID
              ;
 
 FUNCTION_BODY : CMDs
@@ -233,20 +239,56 @@ FUNCTION_BODY : CMDs
 
 %%
 
-#include "lex.yy.c"
+  #include "lex.yy.c"
 
-void yyerror( const char* msg ) {
-  cout << endl << "Erro: " << msg << endl
-       << "Perto de : '" << yylval.v << "'" << endl;
-  exit( 1 );
-}
+    void yyerror( const char* msg ) {
+    cout << endl << "Erro: " << msg << endl
+        << "Perto de : '" << yylval.c[0] << "'" <<endl
+        << "Linha: " << linha << ", coluna: " << coluna <<endl;
+    exit( 1 );
+    }
 
-void print( string st ) {
-  cout << st << " ";
-}
+    vector<string> concatena( vector<string> a, vector<string> b ) {
+    a.insert( a.end(), b.begin(), b.end() );
+    return a;
+    }
 
-int main() {
-  yyparse();
-  cout << "Gramática OK!" << endl;
-  return 0;
-}
+    vector<string> operator+( vector<string> a, vector<string> b ) {
+    return concatena( a, b );
+    }
+
+    vector<string> operator+( vector<string> a, string b ) {
+    a.push_back( b );
+    return a;
+    }
+
+    string gera_label( string prefixo ) {
+    static int n = 0;
+    return prefixo + "_" + to_string( ++n ) + ":";
+    }
+
+    vector<string> resolve_enderecos( vector<string> entrada ) {
+    map<string,int> label;
+    vector<string> saida;
+    for( int i = 0; i < entrada.size(); i++ ) 
+        if( entrada[i][0] == ':' ) 
+            label[entrada[i].substr(1)] = saida.size();
+        else
+        saida.push_back( entrada[i] );
+    
+    for( int i = 0; i < saida.size(); i++ ) 
+        if( label.count( saida[i] ) > 0 )
+            saida[i] = to_string(label[saida[i]]);
+        
+    return saida;
+    }
+
+    void imprime_codigo( vector<string> codigo ) {
+        for( int i = 0; i < codigo.size(); i++ )
+            cout << codigo[i] << " ";
+    }
+
+    int main() {
+    yyparse();
+    //cout << "Sintaxe ok" << endl;
+    }

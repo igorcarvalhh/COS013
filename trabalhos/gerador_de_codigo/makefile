@@ -1,5 +1,8 @@
-all: saida entrada.js
-	./saida < entrada.js
+all: entrada.txt
+	./interpretador < "entrada.txt"
+
+entrada.txt: saida entrada.js
+	./saida < entrada.js > entrada.txt
 
 saida: lex.yy.c y.tab.c
 	g++ -w -std=c++11 y.tab.c -o saida -ll	
