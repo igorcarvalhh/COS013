@@ -1493,7 +1493,7 @@ yyreduce:
 
   case 11: /* STATEMENT: ';'  */
 #line 67 "npr.y"
-                { yyval.c = yyvsp[0].c; }
+                { yyval.c.clear(); }
 #line 1498 "y.tab.c"
     break;
 
@@ -1509,26 +1509,32 @@ yyreduce:
 #line 1510 "y.tab.c"
     break;
 
+  case 26: /* DECL_VARs: DECL_VAR ',' DECL_VARs  */
+#line 92 "npr.y"
+                                   { yyval.c = yyvsp[-2].c + yyvsp[0].c; }
+#line 1516 "y.tab.c"
+    break;
+
   case 27: /* DECL_VAR: ID INITIALIZER  */
 #line 95 "npr.y"
                           { yyval.c = yyvsp[-1].c + "&" + yyvsp[-1].c + yyvsp[0].c +"^"; }
-#line 1516 "y.tab.c"
+#line 1522 "y.tab.c"
     break;
 
   case 28: /* DECL_VAR: ID  */
 #line 96 "npr.y"
               { yyval.c = yyvsp[0].c + "&"; }
-#line 1522 "y.tab.c"
+#line 1528 "y.tab.c"
     break;
 
   case 29: /* INITIALIZER: '=' ASSIGNMENT_EXPRESSION  */
 #line 99 "npr.y"
                                         { yyval.c.clear(); yyval.c = yyvsp[0].c + "="; }
-#line 1528 "y.tab.c"
+#line 1534 "y.tab.c"
     break;
 
 
-#line 1532 "y.tab.c"
+#line 1538 "y.tab.c"
 
       default: break;
     }

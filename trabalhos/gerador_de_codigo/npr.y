@@ -64,7 +64,7 @@ CMD : STATEMENT { $$.c = $1.c; }
 
 STATEMENT : BLOCK
           | VAR_CMD { $$.c = $1.c; }
-          | ';' { $$.c = $1.c; }
+          | ';' { $$.c.clear(); }
           | EXPRESSION_CMD
           | IF_CMD
           | ITERATION_CMD
@@ -89,7 +89,7 @@ VAR_CMD : VAR DECL_VARs ';'
         ;
 
 DECL_VARs : DECL_VAR {$$.c = $1.c ;}
-          | DECL_VAR ',' DECL_VARs
+          | DECL_VAR ',' DECL_VARs { $$.c = $1.c + $3.c; }
           ;
 
 DECL_VAR : ID INITIALIZER { $$.c = $1.c + "&" + $1.c + $2.c +"^"; }
