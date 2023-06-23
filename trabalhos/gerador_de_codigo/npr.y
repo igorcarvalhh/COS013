@@ -65,7 +65,7 @@ CMD : STATEMENT { $$.c = $1.c; }
 STATEMENT : BLOCK
           | VAR_CMD { $$.c = $1.c; }
           | ';' { $$.c.clear(); }
-          | EXPRESSION_CMD
+          | EXPRESSION_CMD 
           | IF_CMD
           | ITERATION_CMD
           | BREAK_CMD
@@ -77,10 +77,9 @@ DECLARATIONS : FUNCTION_DECLARATION
              ;
 
 FUNCTION_DECLARATION : FUNCTION ID '(' FORMAL_PARAMS ')' '{' FUNCTION_BODY '}'
-                     | FUNCTION  '(' FORMAL_PARAMS ')' '{' FUNCTION_BODY '}'
                      ;
 
-BLOCK : '{' CMDs '}'
+BLOCK : '{' CMD CMDs '}'
       ;
 
 VAR_CMD : VAR DECL_VARs ';'
@@ -104,9 +103,6 @@ ASSIGNMENT_EXPRESSION : E
                       | LEFT_HAND MAIS_IGUAL ASSIGNMENT_EXPRESSION { $$.c = $1.c + $1.c + "@" + $3.c + "+ ="; }
                       ;
 
-RIGHT_HAND : ASSIGNMENT_EXPRESSION
-           | EXPRESSION
-           ;
 
 EXPRESSION_CMD : EXPRESSION ';' { $$.c = $1.c + "^"; }
                ;
@@ -118,7 +114,6 @@ ITERATION_CMD : DO CMD WHILE '(' E ')'
               | WHILE '(' E ')' CMD
               | FOR '(' VAR_CMD FOR_E ';' FOR_E ')' STATEMENT
               | FOR '(' FOR_E ';' FOR_E ';' FOR_E ')' STATEMENT
-              | FOR '(' FOR_E ';' FOR_E ';' FOR_E ')' '{'  '}'
               ;
 
 FOR_E : EXPRESSION
@@ -206,16 +201,14 @@ PRIMARY_EXPRESSION : ID { $$.c = $1.c; }
 
 OBJECT_LITERAL : '{' '}'
                | '{' PROPRIETY_LIST '}'
-               | '{' PROPRIETY_LIST ',' '}'
                ;
 
-PROPRIETY_LIST : PROPRIETY
-               | PROPRIETY_LIST ',' PROPRIETY
+PROPRIETY_LIST : PROPRIETY_LIST ',' PROPRIETY
+               | PROPRIETY
                ;
 
-PROPRIETY : ID
-          | ID INITIALIZER
-          | PROPRIETY_NAME ':' ASSIGNMENT_EXPRESSION
+PROPRIETY : PROPRIETY_NAME ':' ASSIGNMENT_EXPRESSION
+          // | ID 
           ;
 
 PROPRIETY_NAME : ID
@@ -247,8 +240,7 @@ FORMAL_PARAM : ID INITIALIZER
              | ID
              ;
 
-FUNCTION_BODY : CMDs
-              |
+FUNCTION_BODY :  CMDs
               ;
 
 %%

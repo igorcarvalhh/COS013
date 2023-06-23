@@ -1,1 +1,5 @@
-a & a 1 = ^ b & x & x b a @ 8 1.1 + * = = ^ c & c "hello " = ^ c c @ ", " "world" + "!" + + = ^ . 
+a & . 
+
+Erro: syntax error
+Perto de : ''
+Linha: 1, coluna: 8
