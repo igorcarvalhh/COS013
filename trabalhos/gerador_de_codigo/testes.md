@@ -65,7 +65,7 @@ if( a < b + 1 )
 ```
 
 --- Program output ---
-
+```
 Erro: syntax error
 Perto de : 'if'
 Linha: 5, coluna: 3
@@ -73,13 +73,14 @@ Linha: 5, coluna: 3
 === Vars ===
 |{ }|
 === Pilha ===
-
+```
 --- Expected output (exact text)---
+```
 === Console ===
 === Vars ===
 |{ a: 5; b: 5; c: undefined; d: a e' menor; }|
 === Pilha ===
-
+```
 # Test 4: #4 if com else
 --- Input ---
 ```

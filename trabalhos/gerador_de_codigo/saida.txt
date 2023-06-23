@@ -1,0 +1,2 @@
+a & a "ABA" = ^ c & c 'CATE' = ^ resultado & a @ c @ == 23 ? 29 # resultado "Ta' errado!" = ^ 60 # a @ c @ < 38 ? 56 # resultado "a vem antes de c: " = ^ resultado resultado @ a @ '<' + c @ + + = ^ 60 # resultado "Deu ruim!" = ^ . 
+Sintaxe ok

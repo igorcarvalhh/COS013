@@ -36,7 +36,7 @@
 %}
 
 // Tokens
-%token	 ML_COMMENT COMENTARIO ID NUM STRING LET VAR CONST FOR FUNCTION IF ELSE DO WHILE SWITCH DEFAULT CASE BREAK RETURN MAIS_IGUAL
+%token	 ML_COMMENT COMENTARIO ID NUM STRING LET VAR CONST FOR FUNCTION IF ELSE DO WHILE SWITCH DEFAULT CASE BREAK RETURN MAIS_IGUAL INC EQ
 
 %start  S
 
@@ -48,7 +48,7 @@
 
 %%
 
-S : CMDs { imprime_codigo( resolve_enderecos( $1.c + "." ) ); cout << endl;}
+S : CMDs { imprime_codigo(  resolve_enderecos( $1.c + ".")  ); cout << endl;}
   ;
 
 CMDs : CMD CMDs { $$.c = $1.c + $2.c; }
@@ -79,7 +79,7 @@ DECLARATIONS : FUNCTION_DECLARATION
 FUNCTION_DECLARATION : FUNCTION ID '(' FORMAL_PARAMS ')' '{' FUNCTION_BODY '}'
                      ;
 
-BLOCK : '{' CMD CMDs '}'
+BLOCK : '{' CMD CMDs '}' { $$.c = $2.c + $3.c; }
       ;
 
 VAR_CMD : VAR DECL_VARs ';'
@@ -107,7 +107,22 @@ ASSIGNMENT_EXPRESSION : E
 EXPRESSION_CMD : EXPRESSION ';' { $$.c = $1.c + "^"; }
                ;
 
-IF_CMD : IF '(' EXPRESSION ')' STATEMENT ELSE STATEMENT
+IF_CMD : IF '(' EXPRESSION ')' STATEMENT ELSE STATEMENT {  string lbl_fim = gera_label( "fim_if" ), 
+                   lbl_true = gera_label( "then" ), 
+                   lbl_false = gera_label( "else" );
+                   
+            $$.c = $3.c + lbl_true + "?" + lbl_false + "#" + 
+                   (":" + lbl_true) + $5.c + lbl_fim + "#" +
+                   (":" + lbl_false) + $7.c + 
+                   (":" + lbl_fim);
+         }
+       | IF '(' EXPRESSION ')' STATEMENT   {string lbl_fim = gera_label( "fim_if" ), 
+                   lbl_true = gera_label( "then" );
+                   
+            $$.c = $3.c + lbl_true + "?" + lbl_fim + "#" + 
+                   (":" + lbl_true) + $5.c + 
+                   (":" + lbl_fim);
+         }
        ;
 
 ITERATION_CMD : DO CMD WHILE '(' E ')'
@@ -170,14 +185,15 @@ NEW_EXPRESSION : PRIMARY_EXPRESSION
                | LEFT_HAND '.' ID
                ;
 
-E : E '<' E
+E : E '<' E { $$.c = $1.c + $3.c + "<";}
   | E '*' E { $$.c = $1.c + $3.c + "*";}
   | E '+' E { $$.c = $1.c + $3.c + "+";}
-  | E '-' E 
-  | E '/' E
-  | E '>' E
-  | E '%' E
-  | E '+' '+'
+  | E '-' E { $$.c = $1.c + $3.c + "-";}
+  | E '/' E { $$.c = $1.c + $3.c + "/";}
+  | E '>' E { $$.c = $1.c + $3.c + ">";}
+  | E '%' E { $$.c = $1.c + $3.c + "%";}
+  | E EQ E { $$.c = $1.c + $3.c + "==";}
+  | LEFT_HAND INC { $$.c = $1.c + $1.c + "@" + "1" + "+" + "=";}
   | R_VALUES 
   ;
 
@@ -224,8 +240,8 @@ ELISION_LIST : ASSIGNMENT_EXPRESSION
              | ELISION_LIST ',' ASSIGNMENT_EXPRESSION
              ;
 
-FUNCTION_EXPRESSION : FUNCTION ID '(' FORMAL_PARAMS ')' '{' FUNCTION_BODY '}'
-                    | FUNCTION  '(' FORMAL_PARAMS ')' '{' FUNCTION_BODY '}'
+FUNCTION_EXPRESSION : FUNCTION  '(' FORMAL_PARAMS ')' '{' FUNCTION_BODY '}'
+                    // | FUNCTION ID '(' FORMAL_PARAMS ')' '{' FUNCTION_BODY '}'
                     ;
 
 FORMAL_PARAMS : FORMAL_PARAMS_LIST
@@ -249,8 +265,8 @@ FUNCTION_BODY :  CMDs
 
     void yyerror( const char* msg ) {
     cout << endl << "Erro: " << msg << endl
-        << "Perto de : '" << yylval.c[0] << "'" <<endl
-        << "Linha: " << linha << ", coluna: " << coluna <<endl;
+        << "Perto de : '" << yylval.c[0] << "'" << endl
+        << "Linha: " << linha << ", coluna: " << coluna << endl;
     exit( 1 );
     }
 
@@ -296,5 +312,5 @@ FUNCTION_BODY :  CMDs
 
     int main() {
     yyparse();
-    //cout << "Sintaxe ok" << endl;
+    cout << "Sintaxe ok" << endl;
     }

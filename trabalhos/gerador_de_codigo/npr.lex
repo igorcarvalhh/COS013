@@ -11,7 +11,7 @@ L	[a-zA-Z_]
 WS	[ \t\n]
 */
 
-STRING	\"(\"\"|\\\"|[^\"])*\"
+STRING	(\"(\"\"|\\\"|[^\"])*\"|\'(\'\'|\\\'|[^\'])*\')
 
 COMENTARIO "//".*
 ML_COMMENT [/][*][^*]*[*]+([^*/][^*]*[*]+)*[/] 
@@ -63,6 +63,8 @@ DEFAULT default
 {DEFAULT}       { acerta_coluna(); return DEFAULT;}
 {ID}		    { acerta_coluna(); return ID; }
 "+="            { acerta_coluna(); return MAIS_IGUAL; }
+"++"            { acerta_coluna(); return INC; }
+"=="            { acerta_coluna(); return EQ; }
 .       	    { acerta_coluna(); return *yytext; }
 
 %%
