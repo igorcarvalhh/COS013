@@ -62,7 +62,7 @@ DEFAULT default
 {CASE}          { acerta_coluna(); return CASE;}
 {DEFAULT}       { acerta_coluna(); return DEFAULT;}
 {ID}		    { acerta_coluna(); return ID; }
-
+"+="            { acerta_coluna(); return MAIS_IGUAL; }
 .       	    { acerta_coluna(); return *yytext; }
 
 %%

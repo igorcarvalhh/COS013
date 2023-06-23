@@ -36,7 +36,7 @@
 %}
 
 // Tokens
-%token	 ML_COMMENT COMENTARIO ID NUM STRING LET VAR CONST FOR FUNCTION IF ELSE DO WHILE SWITCH DEFAULT CASE BREAK RETURN
+%token	 ML_COMMENT COMENTARIO ID NUM STRING LET VAR CONST FOR FUNCTION IF ELSE DO WHILE SWITCH DEFAULT CASE BREAK RETURN MAIS_IGUAL
 
 %start  S
 
@@ -99,11 +99,16 @@ DECL_VAR : ID INITIALIZER { $$.c = $1.c + "&" + $1.c + $2.c +"^"; }
 INITIALIZER : '=' ASSIGNMENT_EXPRESSION { $$.c.clear(); $$.c = $2.c + "="; }
             ;
 
-ASSIGNMENT_EXPRESSION : E 
-                      | LEFT_HAND '=' ASSIGNMENT_EXPRESSION 
+ASSIGNMENT_EXPRESSION : E
+                      | LEFT_HAND '=' ASSIGNMENT_EXPRESSION { $$.c = $1.c + $3.c + "="; }
+                      | LEFT_HAND MAIS_IGUAL ASSIGNMENT_EXPRESSION { $$.c = $1.c + $1.c + "@" + $3.c + "+ ="; }
                       ;
 
-EXPRESSION_CMD : EXPRESSION ';'
+RIGHT_HAND : ASSIGNMENT_EXPRESSION
+           | EXPRESSION
+           ;
+
+EXPRESSION_CMD : EXPRESSION ';' { $$.c = $1.c + "^"; }
                ;
 
 IF_CMD : IF '(' EXPRESSION ')' STATEMENT ELSE STATEMENT
@@ -144,7 +149,7 @@ CASE_CLAUSE : CASE E ':' CMDs
 DEFAULT_CASE : DEFAULT ':' CMDs
              ;
 
-EXPRESSION : ASSIGNMENT_EXPRESSION
+EXPRESSION : ASSIGNMENT_EXPRESSION 
            | EXPRESSION ',' ASSIGNMENT_EXPRESSION
            ;
 
@@ -171,23 +176,32 @@ NEW_EXPRESSION : PRIMARY_EXPRESSION
                ;
 
 E : E '<' E
-  | E '*' E
-  | E '+' E
-  | E '-' E
+  | E '*' E { $$.c = $1.c + $3.c + "*";}
+  | E '+' E { $$.c = $1.c + $3.c + "+";}
+  | E '-' E 
   | E '/' E
   | E '>' E
   | E '%' E
   | E '+' '+'
-  | LEFT_HAND 
+  | R_VALUES 
   ;
 
-PRIMARY_EXPRESSION : ID 
+R_VALUES : ID { $$.c = $1.c + "@"; }
+         | NUM 
+         | STRING 
+         | FUNCTION_EXPRESSION
+         | OBJECT_LITERAL
+         | ARRAY_LITERAL
+         | '(' E ')' { $$.c = $2.c; }
+         ;
+
+PRIMARY_EXPRESSION : ID { $$.c = $1.c; }
                    | NUM 
                    | STRING 
                    | FUNCTION_EXPRESSION
                    | OBJECT_LITERAL
                    | ARRAY_LITERAL
-                   | '(' E ')'
+                   | '(' E ')' { $$.c = $2.c; }
                    ;
 
 OBJECT_LITERAL : '{' '}'

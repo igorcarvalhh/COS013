@@ -1,5 +1,5 @@
 all: entrada.txt
-	./interpretador < "entrada.txt"
+	./interpretador < entrada.txt
 
 entrada.txt: saida entrada.js
 	./saida < entrada.js > entrada.txt
