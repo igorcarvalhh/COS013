@@ -1552,7 +1552,7 @@ yyreduce:
 
   case 31: /* ASSIGNMENT_EXPRESSION: LEFT_HAND MAIS_IGUAL ASSIGNMENT_EXPRESSION  */
 #line 103 "npr.y"
-                                                                   { yyval.c = yyvsp[-2].c + yyvsp[-2].c + "@" + yyvsp[0].c + "+ ="; }
+                                                                   { yyval.c = yyvsp[-2].c + yyvsp[-2].c + "@" + yyvsp[0].c + "+" + "="; }
 #line 1557 "y.tab.c"
     break;
 

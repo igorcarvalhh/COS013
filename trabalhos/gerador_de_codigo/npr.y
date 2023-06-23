@@ -100,7 +100,7 @@ INITIALIZER : '=' ASSIGNMENT_EXPRESSION { $$.c.clear(); $$.c = $2.c + "="; }
 
 ASSIGNMENT_EXPRESSION : E
                       | LEFT_HAND '=' ASSIGNMENT_EXPRESSION { $$.c = $1.c + $3.c + "="; }
-                      | LEFT_HAND MAIS_IGUAL ASSIGNMENT_EXPRESSION { $$.c = $1.c + $1.c + "@" + $3.c + "+ ="; }
+                      | LEFT_HAND MAIS_IGUAL ASSIGNMENT_EXPRESSION { $$.c = $1.c + $1.c + "@" + $3.c + "+" + "="; }
                       ;
 
 
